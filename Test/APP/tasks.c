@@ -212,6 +212,10 @@ void Task_Server(void *p_arg){
                   frame_len,
                   OS_OPT_POST_FIFO,
                   &err);
+          buf = 0;
+          buf_ = 0;
+          start_server = 0;
+          frame_len = 0;
         }else{
           //发送给别的采集器的
           //继续接收
@@ -228,14 +232,26 @@ void Task_Server(void *p_arg){
             case CTR_READADDR:
               //读地址
               readaddr(buf_);
+              buf = 0;
+              buf_ = 0;
+              start_server = 0;
+              frame_len = 0;
               break;
             case CTR_WRITEADDR:
               //写地址
               writeaddr(buf_);
+              buf = 0;
+              buf_ = 0;
+              start_server = 0;
+              frame_len = 0;
               break;
             case CTR_WRITEDATA:
               //开关通道
               writedata(buf_);
+              buf = 0;
+              buf_ = 0;
+              start_server = 0;
+              frame_len = 0;
               break;
             default:
               //继续接收
@@ -258,10 +274,6 @@ void Task_Server(void *p_arg){
         }
       }
       frame_ok = 0;
-      buf_ = 0;
-      buf = 0;
-      start_server = 0;
-      frame_len = 0;
     }
   }
 }
