@@ -17,8 +17,12 @@ extern OS_Q Q_Server;     //存放通过485  或小无线发送来的数据
 extern OS_Q Q_Send_Slave;      //存放要发到底层的帧      
 extern OS_Q Q_Send_Server;     //存放要发到集中器/Programmer的帧
 
-uint8_t reading = 0;   //0 didn't reading meters    1  reading meters
+extern OS_TMR TMR_CJQTIMEOUT;    //打开采集器之后 10分钟超时 自动关闭通道
 
+extern uint8_t cjqaddr[6];
+
+uint8_t reading = 0;   //0 didn't reading meters    1  reading meters
+uint8_t cjq_isopen = 0;  //0~不给表发送数据  1~给表发送数据
 void Task_Slave(void *p_arg){
   OS_ERR err;
   CPU_TS ts;
@@ -115,6 +119,7 @@ uint8_t check_cs(uint8_t * start,uint16_t len){
   return cs;
 }
 
+uint8_t radioaddr[6] = {0xAA,0xAA,0xAA,0xAA,0xAA,0xAA};
 void Task_Server(void *p_arg){
   OS_ERR err;
   CPU_TS ts;
@@ -195,12 +200,154 @@ void Task_Server(void *p_arg){
       //如果是抄表帧  post to Q_Send_Slave
       //如果是配置帧(设置读取采集器地址 开启关闭通道)  响应处理   将响应结果post to Q_Send_Server
       
-      
-      frame_len = 0;
+      if(buf_[1] == 0x10){
+        if(cjq_isopen == 1){
+          //要发给表的
+          OSQPost(&Q_Send_Slave,
+                  buf_,
+                  frame_len,
+                  OS_OPT_POST_FIFO,
+                  &err);
+        }else{
+          //发送给别的采集器的
+          //继续接收
+          buf = buf_;
+          start_server = 0;
+          frame_len = 0;
+        }
+      }else{
+        if(buf_[1] == 0xA0){
+          //发给采集器  需要采集器处理的
+          //判断采集器地址
+          if(Mem_Cmp(radioaddr,buf_+2,6) || Mem_Cmp(cjqaddr,buf_+2,6)){
+            switch(buf_[9]){
+            case CTR_READADDR:
+              //读地址
+              readaddr(buf_);
+              break;
+            case CTR_WRITEADDR:
+              //写地址
+              writeaddr(buf_);
+              break;
+            case CTR_WRITEDATA:
+              //开关通道
+              writedata(buf_);
+              break;
+            default:
+              //继续接收
+              buf = buf_;
+              start_server = 0;
+              frame_len = 0;
+              break;
+            }
+          }else{
+            //继续接收
+            buf = buf_;
+            start_server = 0;
+            frame_len = 0;
+          }
+        }else{
+          //继续接收
+          buf = buf_;
+          start_server = 0;
+          frame_len = 0;
+        }
+      }
+      frame_ok = 0;
     }
   }
 }
 
+void writeaddr(uint8_t *frame){
+  uint8_t i = 0;
+  OS_ERR err;
+  
+  if(frame[11] == DATAFLAG_WA_L && frame[12] == DATAFLAG_WA_H){
+    FLASH_UnlockBank1();
+    FLASH_ErasePage(0x800FC00);
+    FLASH_ProgramHalfWord(0x800FC00,*(uint16_t *)(frame+14));
+    FLASH_ProgramHalfWord(0x800FC02,*(uint16_t *)(frame+16));
+    FLASH_ProgramHalfWord(0x800FC04,*(uint16_t *)(frame+18));
+    FLASH_LockBank1();
+    
+    for(i = 0;i<6;i++){
+      cjqaddr[i] = *(u32 *)(0x800FC00+i);
+      frame[2+i] = *(u32 *)(0x800FC00+i);
+    }
+    
+    frame[9] = CTR_ACKWA;
+    frame[10] = 0x03;
+    frame[14] = check_cs(frame,14);
+    frame[15] = 0x16;
+    OSQPost(&Q_Send_Server,
+              frame,
+              16,
+              OS_OPT_POST_FIFO,
+              &err);
+    
+  }else{
+    //不是要的处理
+    //将BUF 还回去   
+    OSMemPut(&MEM_Buf,frame,&err);
+  }
+}
+
+void readaddr(uint8_t *frame){
+  uint8_t i = 0;
+  OS_ERR err;
+  if(frame[11] == DATAFLAG_RA_L && frame[12] == DATAFLAG_RA_H){
+    frame[9] = CTR_ACKADDR;
+    for(i = 0;i<6;i++){
+      frame[2+i] = *(u32 *)(0x800FC00+i);
+    }
+    frame[14] = check_cs(frame,14);
+    frame[15] = 0x16;
+    OSQPost(&Q_Send_Server,
+              frame,
+              16,
+              OS_OPT_POST_FIFO,
+              &err);
+  }else{
+    //不是要的处理
+    //将BUF 还回去   
+    OSMemPut(&MEM_Buf,frame,&err);
+  }
+}
+
+void writedata(uint8_t *frame){
+  uint8_t i = 0;
+  OS_ERR err;
+  if(frame[11] == DATAFLAG_WV_L && frame[12] == DATAFLAG_WV_H){
+    if(frame[14] == OPEN_VALVE){
+      //open cjq
+      cjq_open(frame[2]);
+      frame[14] = 0x00;
+    }else{
+      //close cjq
+      cjq_close();
+      frame[14] = 0x02;
+    }
+    
+    //write the valve control status 
+    frame[9] = CTR_ACKWD;
+    frame[10] = 0x05;
+    
+    //frame[14] = st[0];
+    frame[15] = 0x00;
+    
+    frame[16] = check_cs(frame,16);
+    frame[17] = 0x16;
+    OSQPost(&Q_Send_Server,
+              frame,
+              18,
+              OS_OPT_POST_FIFO,
+              &err);
+  }else{
+    //不是要的处理
+    //将BUF 还回去   
+    OSMemPut(&MEM_Buf,frame,&err);
+  }
+}
 
 void power_cmd(FunctionalState NewState){
   if(NewState != DISABLE){
@@ -293,6 +440,7 @@ uint8_t relay_4(FunctionalState NewState){
 }
 
 uint8_t cjq_open(uint8_t road){
+  OS_ERR err;
   cjq_close();  //先关闭所有的通道
   switch (road){
   case 1:
@@ -309,6 +457,8 @@ uint8_t cjq_open(uint8_t road){
     break;
         
   }
+  cjq_isopen = 1;
+  OSTmrStart(&TMR_CJQTIMEOUT,&err);
   return 1;
 }
 
@@ -317,7 +467,16 @@ uint8_t cjq_close(){
   relay_2(DISABLE);
   relay_3(DISABLE);
   relay_4(DISABLE);
+  cjq_isopen = 0;
   return 1;
+}
+
+void cjq_timeout(void *p_tmr,void *p_arg){
+  //关闭电源
+  mbus_power(DISABLE);
+  relay_485(DISABLE);
+  //关闭通道
+  cjq_close();
 }
 
 void Task_Send_Server(void *p_arg){

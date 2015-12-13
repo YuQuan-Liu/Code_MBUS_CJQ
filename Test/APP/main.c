@@ -54,6 +54,10 @@ OS_Q Q_Send_Server;     //存放要发到集中器/Programmer的帧
 //OS_FLAG
 OS_FLAG_GRP FLAG_Event;
 
+//OS_TMR
+OS_TMR TMR_CJQTIMEOUT;    //打开采集器之后 10分钟超时 自动关闭通道
+
+uint8_t cjqaddr[6] = {0x01,0x00,0x00,0x00,0x00,0x00};
 
 void TaskStart(void *p_arg);
 void TaskCreate(void);
@@ -87,6 +91,7 @@ void TaskStart(void *p_arg){
   CPU_INT32U cnts;
   CPU_INT32U cpu_clk_freq;
   OS_ERR err;
+  uint8_t i = 0;  //get the cjqaddr
   //uint32_t flashid;
   
   BSP_Init();
@@ -109,6 +114,12 @@ void TaskStart(void *p_arg){
   */
   TaskCreate();
   ObjCreate();
+  
+  if(*(u32 *)0x800FC00 != 0xFF){
+    for(i = 0;i<6;i++){
+      cjqaddr[i] = *(u32 *)(0x800FC00+i);
+    }
+  }
   
   //Open the IWDG;
   BSP_IWDG_Init();
@@ -302,6 +313,16 @@ void ObjCreate(void){
                "",
                (OS_FLAGS)0,
                &err);
+  
+  //OS_TMRs
+  OSTmrCreate(&TMR_CJQTIMEOUT,
+              "",
+              600000,
+              0,
+              OS_OPT_TMR_ONE_SHOT,
+              cjq_timeout,
+              0,
+              &err);
   
 }
 
