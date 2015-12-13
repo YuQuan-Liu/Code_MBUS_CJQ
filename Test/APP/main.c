@@ -128,12 +128,12 @@ void TaskStart(void *p_arg){
     /* Reload IWDG counter */
     IWDG_ReloadCounter();
     
-    
-    GPIO_SetBits(GPIOB,GPIO_Pin_7);
+    //LED1
+    GPIO_SetBits(GPIOB,GPIO_Pin_0);
     OSTimeDly(1000,
                   OS_OPT_TIME_DLY,
                   &err);
-    GPIO_ResetBits(GPIOB,GPIO_Pin_7);
+    GPIO_ResetBits(GPIOB,GPIO_Pin_0);
     OSTimeDly(1000,
                   OS_OPT_TIME_DLY,
                   &err);

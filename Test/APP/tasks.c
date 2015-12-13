@@ -366,12 +366,12 @@ uint8_t mbus_power(FunctionalState NewState){
   OS_ERR err;
   if(NewState != DISABLE){
     
-    GPIO_SetBits(GPIOC,GPIO_Pin_13);
-    OSTimeDly(1500,
+    GPIO_SetBits(GPIOA,GPIO_Pin_0);
+    OSTimeDly(1000,
                   OS_OPT_TIME_DLY,
                   &err);
   }else{
-    GPIO_ResetBits(GPIOC,GPIO_Pin_13);
+    GPIO_ResetBits(GPIOA,GPIO_Pin_0);
   }
   return 1;
 }
@@ -380,33 +380,8 @@ uint8_t relay_485(FunctionalState NewState){
   /**/
   OS_ERR err;
   if(NewState != DISABLE){
-   GPIO_SetBits(GPIOA,GPIO_Pin_6);
-   OSTimeDly(600,
-                  OS_OPT_TIME_DLY,
-                  &err);
-  }else{
-    GPIO_ResetBits(GPIOA,GPIO_Pin_6);
-  }
-  return 1;
-}
-
-uint8_t relay_1(FunctionalState NewState){
-  OS_ERR err;
-  if(NewState != DISABLE){
-   GPIO_SetBits(GPIOB,GPIO_Pin_2);
-   OSTimeDly(3000,
-                  OS_OPT_TIME_DLY,
-                  &err);
-  }else{
-    GPIO_ResetBits(GPIOB,GPIO_Pin_2);
-  }
-  return 1;
-}
-uint8_t relay_2(FunctionalState NewState){
-  OS_ERR err;
-  if(NewState != DISABLE){
    GPIO_SetBits(GPIOB,GPIO_Pin_1);
-   OSTimeDly(3000,
+   OSTimeDly(600,
                   OS_OPT_TIME_DLY,
                   &err);
   }else{
@@ -414,27 +389,52 @@ uint8_t relay_2(FunctionalState NewState){
   }
   return 1;
 }
-uint8_t relay_3(FunctionalState NewState){
+
+uint8_t relay_1(FunctionalState NewState){
   OS_ERR err;
   if(NewState != DISABLE){
-   GPIO_SetBits(GPIOB,GPIO_Pin_0);
+   GPIO_SetBits(GPIOA,GPIO_Pin_15);
    OSTimeDly(3000,
                   OS_OPT_TIME_DLY,
                   &err);
   }else{
-    GPIO_ResetBits(GPIOB,GPIO_Pin_0);
+    GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+  }
+  return 1;
+}
+uint8_t relay_2(FunctionalState NewState){
+  OS_ERR err;
+  if(NewState != DISABLE){
+   GPIO_SetBits(GPIOB,GPIO_Pin_3);
+   OSTimeDly(3000,
+                  OS_OPT_TIME_DLY,
+                  &err);
+  }else{
+    GPIO_ResetBits(GPIOB,GPIO_Pin_3);
+  }
+  return 1;
+}
+uint8_t relay_3(FunctionalState NewState){
+  OS_ERR err;
+  if(NewState != DISABLE){
+   GPIO_SetBits(GPIOB,GPIO_Pin_4);
+   OSTimeDly(3000,
+                  OS_OPT_TIME_DLY,
+                  &err);
+  }else{
+    GPIO_ResetBits(GPIOB,GPIO_Pin_4);
   }
   return 1;
 }
 uint8_t relay_4(FunctionalState NewState){
   OS_ERR err;
   if(NewState != DISABLE){
-   GPIO_SetBits(GPIOA,GPIO_Pin_7);
+   GPIO_SetBits(GPIOB,GPIO_Pin_5);
    OSTimeDly(3000,
                   OS_OPT_TIME_DLY,
                   &err);
   }else{
-    GPIO_ResetBits(GPIOA,GPIO_Pin_7);
+    GPIO_ResetBits(GPIOB,GPIO_Pin_5);
   }
   return 1;
 }
@@ -510,22 +510,23 @@ void Task_Send_Slave(void *p_arg){
 void Task_LED1(void *p_arg){
   OS_ERR err;
   
+  //LED2
   while(DEF_TRUE){
-    if(reading == 0){
-      GPIO_SetBits(GPIOB,GPIO_Pin_6);
+    if(cjq_isopen == 0){
+      GPIO_SetBits(GPIOA,GPIO_Pin_7);
       OSTimeDly(1000,
                     OS_OPT_TIME_DLY,
                     &err);
-      GPIO_ResetBits(GPIOB,GPIO_Pin_6);
+      GPIO_ResetBits(GPIOA,GPIO_Pin_7);
       OSTimeDly(1000,
                     OS_OPT_TIME_DLY,
                     &err);
     }else{
-      GPIO_SetBits(GPIOB,GPIO_Pin_6);
+      GPIO_SetBits(GPIOA,GPIO_Pin_7);
       OSTimeDly(300,
                     OS_OPT_TIME_DLY,
                     &err);
-      GPIO_ResetBits(GPIOB,GPIO_Pin_6);
+      GPIO_ResetBits(GPIOA,GPIO_Pin_7);
       OSTimeDly(300,
                     OS_OPT_TIME_DLY,
                     &err);
@@ -552,19 +553,19 @@ void Task_OverLoad(void *p_arg){
     OSTimeDly(500,
                   OS_OPT_TIME_DLY,
                   &err);
-    if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)){
+    if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_12)){
       //enable the beep
-      GPIO_SetBits(GPIOA,GPIO_Pin_15);
+      GPIO_SetBits(GPIOA,GPIO_Pin_1);
       //disable the mbus power
-      GPIO_ResetBits(GPIOC,GPIO_Pin_13);
+      GPIO_ResetBits(GPIOA,GPIO_Pin_0);
       //Light the LED3
       
       while(DEF_TRUE){
-        GPIO_SetBits(GPIOB,GPIO_Pin_9);
+        GPIO_SetBits(GPIOA,GPIO_Pin_6);
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
                   &err);
-        GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+        GPIO_ResetBits(GPIOA,GPIO_Pin_6);
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
                   &err);

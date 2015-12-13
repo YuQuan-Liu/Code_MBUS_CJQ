@@ -147,7 +147,7 @@ ErrorStatus Send_Server_485(uint8_t * data,uint16_t count){
               &err);
     
     
-    USART_SendData(USART2,0xFE);
+    USART_SendData(USART3,0xFE);
   }
   
   for(i = 0;i < count;i++){
@@ -174,7 +174,7 @@ ErrorStatus Send_Server_485(uint8_t * data,uint16_t count){
 extern OS_FLAG_GRP FLAG_Event;
 void OverLoad(void){
   OS_ERR err;
-  if(EXTI_GetITStatus(EXTI_Line0) != RESET)
+  if(EXTI_GetITStatus(EXTI_Line12) != RESET)
   {
     OSFlagPost(&FLAG_Event,
                OVERLOAD,
@@ -182,6 +182,6 @@ void OverLoad(void){
                &err);
     
     /* Clear the  EXTI line 0 pending bit */
-    EXTI_ClearITPendingBit(EXTI_Line0);
+    EXTI_ClearITPendingBit(EXTI_Line12);
   }
 }
