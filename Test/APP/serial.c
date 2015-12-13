@@ -87,6 +87,7 @@ void USART2_Handler(void){
       asm("NOP");
     }
   }
+  
 }
 
 //mbus  485 USART2
@@ -140,12 +141,11 @@ ErrorStatus Send_Server_485(uint8_t * data,uint16_t count){
   
   for(i = 0;i < 4;i++){
     err = OS_ERR_NONE;
-    OSSemPend(&SEM_Send_Slave,
+    OSSemPend(&SEM_Send_Server_485,
               500,
               OS_OPT_PEND_BLOCKING,
               &ts,
               &err);
-    
     
     USART_SendData(USART3,0xFE);
   }

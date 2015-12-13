@@ -115,14 +115,14 @@ void TaskStart(void *p_arg){
   TaskCreate();
   ObjCreate();
   
-  if(*(u32 *)0x800FC00 != 0xFF){
+  if(*(u8 *)0x800FC00 != 0xFF){
     for(i = 0;i<6;i++){
-      cjqaddr[i] = *(u32 *)(0x800FC00+i);
+      cjqaddr[i] = *(u8 *)(0x800FC00+i);
     }
   }
   
   //Open the IWDG;
-  BSP_IWDG_Init();
+  //BSP_IWDG_Init();
   
   while(DEF_TRUE){
     /* Reload IWDG counter */
@@ -317,7 +317,7 @@ void ObjCreate(void){
   //OS_TMRs
   OSTmrCreate(&TMR_CJQTIMEOUT,
               "",
-              600000,
+              6000,
               0,
               OS_OPT_TMR_ONE_SHOT,
               cjq_timeout,

@@ -85,8 +85,8 @@ void Task_Slave(void *p_arg){
           if(*(buf-2) == check_cs(buf_,frame_len-2)){
             //the frame is ok;  
             frame_ok = 1;
-            buf_ = 0;
-            buf = 0;
+          }else{
+            buf = buf_;
             start_slave = 0;
             frame_len = 0;
           }
@@ -105,6 +105,10 @@ void Task_Slave(void *p_arg){
               OS_OPT_POST_FIFO,
               &err);
       frame_ok = 0;
+      buf_ = 0;
+      buf = 0;
+      start_slave = 0;
+      frame_len = 0;
     }
   }
 }
@@ -182,8 +186,8 @@ void Task_Server(void *p_arg){
           if(*(buf-2) == check_cs(buf_,frame_len-2)){
             //the frame is ok;  
             frame_ok = 1;
-            buf_ = 0;
-            buf = 0;
+          }else{
+            buf = buf_;
             start_server = 0;
             frame_len = 0;
           }
@@ -254,6 +258,10 @@ void Task_Server(void *p_arg){
         }
       }
       frame_ok = 0;
+      buf_ = 0;
+      buf = 0;
+      start_server = 0;
+      frame_len = 0;
     }
   }
 }
@@ -271,10 +279,10 @@ void writeaddr(uint8_t *frame){
     FLASH_LockBank1();
     
     for(i = 0;i<6;i++){
-      cjqaddr[i] = *(u32 *)(0x800FC00+i);
-      frame[2+i] = *(u32 *)(0x800FC00+i);
+      cjqaddr[i] = *(u8 *)(0x800FC00+i);
+      frame[2+i] = *(u8 *)(0x800FC00+i);
     }
-    
+    frame[8] = 0x00;
     frame[9] = CTR_ACKWA;
     frame[10] = 0x03;
     frame[14] = check_cs(frame,14);
@@ -298,7 +306,7 @@ void readaddr(uint8_t *frame){
   if(frame[11] == DATAFLAG_RA_L && frame[12] == DATAFLAG_RA_H){
     frame[9] = CTR_ACKADDR;
     for(i = 0;i<6;i++){
-      frame[2+i] = *(u32 *)(0x800FC00+i);
+      frame[2+i] = cjqaddr[i];
     }
     frame[14] = check_cs(frame,14);
     frame[15] = 0x16;
@@ -320,10 +328,12 @@ void writedata(uint8_t *frame){
   if(frame[11] == DATAFLAG_WV_L && frame[12] == DATAFLAG_WV_H){
     if(frame[14] == OPEN_VALVE){
       //open cjq
+      power_cmd(ENABLE);  //打开电源
       cjq_open(frame[2]);
       frame[14] = 0x00;
     }else{
       //close cjq
+      power_cmd(DISABLE);   //关闭电源
       cjq_close();
       frame[14] = 0x02;
     }
@@ -349,45 +359,20 @@ void writedata(uint8_t *frame){
   }
 }
 
-void power_cmd(FunctionalState NewState){
+uint8_t power_cmd(FunctionalState NewState){
+  OS_ERR err;
   if(NewState != DISABLE){
     //打开电源
-    mbus_power(ENABLE);
-    relay_485(ENABLE);
+    GPIO_SetBits(GPIOA,GPIO_Pin_0);
+    GPIO_SetBits(GPIOB,GPIO_Pin_1);
+    OSTimeDly(1000,
+              OS_OPT_TIME_DLY,
+              &err);
   }else{
     //关闭电源
-    mbus_power(DISABLE);
-    relay_485(DISABLE);
-  }
-}
-
-uint8_t mbus_power(FunctionalState NewState){
-  /**/
-  OS_ERR err;
-  if(NewState != DISABLE){
-    
-    GPIO_SetBits(GPIOA,GPIO_Pin_0);
-    OSTimeDly(1000,
-                  OS_OPT_TIME_DLY,
-                  &err);
-  }else{
     GPIO_ResetBits(GPIOA,GPIO_Pin_0);
-  }
-  return 1;
-}
-
-uint8_t relay_485(FunctionalState NewState){
-  /**/
-  OS_ERR err;
-  if(NewState != DISABLE){
-   GPIO_SetBits(GPIOB,GPIO_Pin_1);
-   OSTimeDly(600,
-                  OS_OPT_TIME_DLY,
-                  &err);
-  }else{
     GPIO_ResetBits(GPIOB,GPIO_Pin_1);
   }
-  return 1;
 }
 
 uint8_t relay_1(FunctionalState NewState){
@@ -463,18 +448,19 @@ uint8_t cjq_open(uint8_t road){
 }
 
 uint8_t cjq_close(){
+  OS_ERR err;
   relay_1(DISABLE);
   relay_2(DISABLE);
   relay_3(DISABLE);
   relay_4(DISABLE);
   cjq_isopen = 0;
+  OSTmrStop(&TMR_CJQTIMEOUT,OS_OPT_TMR_NONE,0,&err);
   return 1;
 }
 
 void cjq_timeout(void *p_tmr,void *p_arg){
   //关闭电源
-  mbus_power(DISABLE);
-  relay_485(DISABLE);
+  power_cmd(DISABLE);
   //关闭通道
   cjq_close();
 }
@@ -550,14 +536,14 @@ void Task_OverLoad(void *p_arg){
                 &ts,
                 &err);
     
-    OSTimeDly(500,
+    OSTimeDly(200,
                   OS_OPT_TIME_DLY,
                   &err);
     if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_12)){
       //enable the beep
       GPIO_SetBits(GPIOA,GPIO_Pin_1);
       //disable the mbus power
-      GPIO_ResetBits(GPIOA,GPIO_Pin_0);
+      power_cmd(DISABLE);
       //Light the LED3
       
       while(DEF_TRUE){

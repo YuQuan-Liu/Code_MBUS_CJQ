@@ -15,8 +15,7 @@ void writedata(uint8_t *frame);  //写数据  主要是开关通道
 void readaddr(uint8_t *frame);//读地址
 void writeaddr(uint8_t *frame);//写地址
 
-uint8_t relay_485(FunctionalState NewState);
-uint8_t mbus_power(FunctionalState NewState);
+uint8_t power_cmd(FunctionalState NewState); //使能MBUS（38V） 和 485（12V）电源
 
 uint8_t relay_1(FunctionalState NewState);
 uint8_t relay_2(FunctionalState NewState);
