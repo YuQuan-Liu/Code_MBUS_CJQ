@@ -57,13 +57,15 @@ void Task_Slave(void *p_arg){
     if(buf == 0){
       buf = OSMemGet(&MEM_Buf,
                      &err);
-      if(err != OS_ERR_NONE){
-        asm("NOP");
+      if(err == OS_ERR_NONE){
+        //get the buf
+        buf_ = buf;
+        Mem_Set(buf_,0x00,256); //clear the buf
+      }else{
         //didn't get the buf
+        asm("NOP");
+        continue;
       }
-      buf_ = buf;
-      Mem_Set(buf_,0x00,256); //clear the buf
-      
     }
     
     //it is the frame come from the meter
@@ -158,13 +160,15 @@ void Task_Server(void *p_arg){
     if(buf == 0){
       buf = OSMemGet(&MEM_Buf,
                      &err);
-      if(err != OS_ERR_NONE){
-        asm("NOP");
+      if(err == OS_ERR_NONE){
+        //get the buf
+        buf_ = buf;
+        Mem_Set(buf_,0x00,256); //clear the buf
+      }else{
         //didn't get the buf
+        asm("NOP");
+        continue;
       }
-      buf_ = buf;
-      Mem_Set(buf_,0x00,256); //clear the buf
-      
     }
     
     //it is the frame come from the meter

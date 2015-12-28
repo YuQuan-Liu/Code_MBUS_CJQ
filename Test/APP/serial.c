@@ -24,14 +24,18 @@ void USART3_Handler(void){
   if(USART_GetFlagStatus(USART3,USART_FLAG_RXNE)){
     rx_byte = USART_ReceiveData(USART3);
     mem_ptr = OSMemGet(&MEM_ISR,&err);
-    *mem_ptr = rx_byte;
-    OSQPost((OS_Q *)&Q_Server,
-            (void *)mem_ptr,
-            1,
-            OS_OPT_POST_FIFO,
-            &err);
-    
-    if(err != OS_ERR_NONE){
+    if(err == OS_ERR_NONE){
+      *mem_ptr = rx_byte;
+      OSQPost((OS_Q *)&Q_Server,
+              (void *)mem_ptr,
+              1,
+              OS_OPT_POST_FIFO,
+              &err);
+      
+      if(err != OS_ERR_NONE){
+        asm("NOP");
+      }
+    }else{
       asm("NOP");
     }
   }
@@ -63,14 +67,19 @@ void USART2_Handler(void){
   if(USART_GetFlagStatus(USART2,USART_FLAG_RXNE)){
     rx_byte = USART_ReceiveData(USART2);
     mem_ptr = OSMemGet(&MEM_ISR,&err);
-    *mem_ptr = rx_byte;
-    OSQPost((OS_Q *)&Q_Slave,
-            (void *)mem_ptr,
-            1,
-            OS_OPT_POST_FIFO,
-            &err);
-    
-    if(err != OS_ERR_NONE){
+    if(err == OS_ERR_NONE){
+      *mem_ptr = rx_byte;
+      *mem_ptr = rx_byte;
+      OSQPost((OS_Q *)&Q_Slave,
+              (void *)mem_ptr,
+              1,
+              OS_OPT_POST_FIFO,
+              &err);
+      
+      if(err != OS_ERR_NONE){
+        asm("NOP");
+      }
+    }else{
       asm("NOP");
     }
   }

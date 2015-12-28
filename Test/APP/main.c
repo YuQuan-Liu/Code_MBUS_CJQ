@@ -39,7 +39,7 @@ uint8_t mem_buf[4][256];
 
 //be used in the ISR   get the data from the usart*  post it to the deal task
 OS_MEM MEM_ISR;
-uint8_t mem_isr[30][4];
+uint8_t mem_isr[50][4];
 
 //OS_SEMs ;
 OS_SEM SEM_Send_Server_485;  //通过485 往集中器/programmer发送数据
@@ -251,7 +251,7 @@ void ObjCreate(void){
   OSMemCreate((OS_MEM *)&MEM_ISR,
               (CPU_CHAR *)"",
               (void *)&mem_isr[0][0],
-              (OS_MEM_QTY)30,
+              (OS_MEM_QTY)50,
               (OS_MEM_SIZE)4,
               (OS_ERR *)&err);
   if(err != OS_ERR_NONE){
