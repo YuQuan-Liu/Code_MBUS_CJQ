@@ -515,20 +515,20 @@ void Task_LED1(void *p_arg){
   //LED2
   while(DEF_TRUE){
     if(cjq_isopen == 0){
-      GPIO_SetBits(GPIOA,GPIO_Pin_7);
+      GPIO_SetBits(GPIOA,GPIO_Pin_6);
       OSTimeDly(1000,
                     OS_OPT_TIME_DLY,
                     &err);
-      GPIO_ResetBits(GPIOA,GPIO_Pin_7);
+      GPIO_ResetBits(GPIOA,GPIO_Pin_6);
       OSTimeDly(1000,
                     OS_OPT_TIME_DLY,
                     &err);
     }else{
-      GPIO_SetBits(GPIOA,GPIO_Pin_7);
+      GPIO_SetBits(GPIOA,GPIO_Pin_6);
       OSTimeDly(300,
                     OS_OPT_TIME_DLY,
                     &err);
-      GPIO_ResetBits(GPIOA,GPIO_Pin_7);
+      GPIO_ResetBits(GPIOA,GPIO_Pin_6);
       OSTimeDly(300,
                     OS_OPT_TIME_DLY,
                     &err);
@@ -563,11 +563,11 @@ void Task_OverLoad(void *p_arg){
       //Light the LED3
       
       while(DEF_TRUE){
-        GPIO_SetBits(GPIOA,GPIO_Pin_6);
+        GPIO_SetBits(GPIOA,GPIO_Pin_7);
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
                   &err);
-        GPIO_ResetBits(GPIOA,GPIO_Pin_6);
+        GPIO_ResetBits(GPIOA,GPIO_Pin_7);
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
                   &err);
