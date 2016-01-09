@@ -209,7 +209,7 @@ void Task_Server(void *p_arg){
       //如果是配置帧(设置读取采集器地址 开启关闭通道)  响应处理   将响应结果post to Q_Send_Server
       
       if(buf_[1] == 0x10){
-        if(cjq_isopen == 1){
+        if(cjq_isopen > 0){
           //要发给表的
           OSQPost(&Q_Send_Slave,
                   buf_,
@@ -442,24 +442,30 @@ uint8_t relay_4(FunctionalState NewState){
 
 uint8_t cjq_open(uint8_t road){
   OS_ERR err;
-  cjq_close();  //先关闭所有的通道
-  switch (road){
-  case 1:
-    relay_1(ENABLE);
-    break;
-  case 2:
-    relay_2(ENABLE);
-    break;
-  case 3:
-    relay_3(ENABLE);
-    break;
-  case 4:
-    relay_4(ENABLE);
-    break;
-        
+  if(cjq_isopen == road){
+    OSTmrStart(&TMR_CJQTIMEOUT,&err);
+  }else{
+    cjq_close();  //先关闭所有的通道
+    switch (road){
+    case 1:
+      relay_1(ENABLE);
+      cjq_isopen = 1;
+      break;
+    case 2:
+      relay_2(ENABLE);
+      cjq_isopen = 2;
+      break;
+    case 3:
+      relay_3(ENABLE);
+      cjq_isopen = 3;
+      break;
+    case 4:
+      relay_4(ENABLE);
+      cjq_isopen = 4;
+      break;
+    }
+    OSTmrStart(&TMR_CJQTIMEOUT,&err);
   }
-  cjq_isopen = 1;
-  OSTmrStart(&TMR_CJQTIMEOUT,&err);
   return 1;
 }
 

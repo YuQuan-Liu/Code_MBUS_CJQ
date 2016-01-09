@@ -317,7 +317,7 @@ void ObjCreate(void){
   //OS_TMRs
   OSTmrCreate(&TMR_CJQTIMEOUT,
               "",
-              6000,
+              12000,
               0,
               OS_OPT_TMR_ONE_SHOT,
               cjq_timeout,
