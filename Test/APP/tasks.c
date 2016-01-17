@@ -231,7 +231,7 @@ void Task_Server(void *p_arg){
         if(buf_[1] == 0xA0){
           //发给采集器  需要采集器处理的
           //判断采集器地址
-          if(Mem_Cmp(radioaddr,buf_+2,6) || Mem_Cmp(cjqaddr,buf_+2,6)){
+          if(Mem_Cmp(radioaddr,buf_+2,6) || Mem_Cmp(cjqaddr+1,buf_+3,5)){
             switch(buf_[9]){
             case CTR_READADDR:
               //读地址

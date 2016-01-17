@@ -57,7 +57,7 @@ OS_FLAG_GRP FLAG_Event;
 //OS_TMR
 OS_TMR TMR_CJQTIMEOUT;    //打开采集器之后 10分钟超时 自动关闭通道
 
-uint8_t cjqaddr[6] = {0x01,0x00,0x00,0x00,0x00,0x00};
+uint8_t cjqaddr[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
 
 void TaskStart(void *p_arg);
 void TaskCreate(void);
