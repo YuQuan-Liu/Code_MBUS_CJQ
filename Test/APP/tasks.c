@@ -531,11 +531,11 @@ void Task_LED1(void *p_arg){
                     &err);
     }else{
       GPIO_SetBits(GPIOA,GPIO_Pin_6);
-      OSTimeDly(300,
+      OSTimeDly(100,
                     OS_OPT_TIME_DLY,
                     &err);
       GPIO_ResetBits(GPIOA,GPIO_Pin_6);
-      OSTimeDly(300,
+      OSTimeDly(100,
                     OS_OPT_TIME_DLY,
                     &err);
     }
@@ -570,17 +570,19 @@ void Task_OverLoad(void *p_arg){
       
       //·äÃùÆ÷Ïì20s
       while(cnt < 100){
-        GPIO_SetBits(GPIOA,GPIO_Pin_7);
+        GPIO_ResetBits(GPIOA,GPIO_Pin_7);
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
                   &err);
-        GPIO_ResetBits(GPIOA,GPIO_Pin_7);
+        GPIO_SetBits(GPIOA,GPIO_Pin_7);   //Ìø³öÑ­»·Ê±¹ýÔØµÆÃð
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
                   &err);
         cnt++;
       }
       cnt = 0;
+      //disable the beep
+      GPIO_ResetBits(GPIOA,GPIO_Pin_1);
     }
     
   }
