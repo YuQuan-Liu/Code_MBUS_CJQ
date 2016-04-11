@@ -548,7 +548,7 @@ extern OS_FLAG_GRP FLAG_Event;
 void Task_OverLoad(void *p_arg){
   OS_ERR err;
   CPU_TS ts;
-  
+  uint16_t cnt = 0;
   while(DEF_TRUE){
     
     OSFlagPend(&FLAG_Event,
@@ -568,7 +568,8 @@ void Task_OverLoad(void *p_arg){
       power_cmd(DISABLE);
       //Light the LED3
       
-      while(DEF_TRUE){
+      //·äÃùÆ÷Ïì20s
+      while(cnt < 100){
         GPIO_SetBits(GPIOA,GPIO_Pin_7);
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
@@ -577,7 +578,9 @@ void Task_OverLoad(void *p_arg){
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,
                   &err);
+        cnt++;
       }
+      cnt = 0;
     }
     
   }

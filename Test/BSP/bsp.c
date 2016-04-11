@@ -166,7 +166,7 @@ void BSP_GPIO_Init(void){
 void BSP_USART_Init(void){
   USART_InitTypeDef usart_init;
   
-  /*USART1  小无线*/
+  /*USART1  小无线
   usart_init.USART_BaudRate = 2400;
   usart_init.USART_WordLength = USART_WordLength_9b;
   usart_init.USART_Parity = USART_Parity_Even;
@@ -180,7 +180,7 @@ void BSP_USART_Init(void){
   USART_ITConfig(USART1, USART_IT_TC, DISABLE);
   USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-  
+  */
   /*USART2  mbus 485  Slave*/
   usart_init.USART_BaudRate = 2400;
   usart_init.USART_WordLength = USART_WordLength_9b;
@@ -218,12 +218,12 @@ void BSP_NVIC_Init(void){
   /* Configure the NVIC Preemption Priority Bits */  
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
   
-  /* Enable the USART1 Interrupt */
+  /* Enable the USART1 Interrupt 
   nvic_init.NVIC_IRQChannel = USART1_IRQn;
   nvic_init.NVIC_IRQChannelSubPriority = 0;
   nvic_init.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&nvic_init);
-  
+  */
   /* Enable the USART3 Interrupt */
   nvic_init.NVIC_IRQChannel = USART3_IRQn;
   nvic_init.NVIC_IRQChannelSubPriority = 1;
