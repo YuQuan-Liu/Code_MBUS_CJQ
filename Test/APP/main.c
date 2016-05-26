@@ -43,6 +43,7 @@ uint8_t mem_isr[50][4];
 
 //OS_SEMs ;
 OS_SEM SEM_Send_Server_485;  //通过485 往集中器/programmer发送数据
+OS_SEM SEM_Send_Server_RF;  //通过485 往集中器/programmer发送数据
 OS_SEM SEM_Send_Slave;  //给底层表具发送数据
 
 //OS_Qs
@@ -268,6 +269,14 @@ void ObjCreate(void){
   }
   
   OSSemCreate(&SEM_Send_Server_485,
+              "",
+              0,
+              &err);
+  if(err != OS_ERR_NONE){
+    return;
+  }
+  
+  OSSemCreate(&SEM_Send_Server_RF,
               "",
               0,
               &err);

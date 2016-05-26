@@ -166,10 +166,10 @@ void BSP_GPIO_Init(void){
 void BSP_USART_Init(void){
   USART_InitTypeDef usart_init;
   
-  /*USART1  小无线
-  usart_init.USART_BaudRate = 2400;
-  usart_init.USART_WordLength = USART_WordLength_9b;
-  usart_init.USART_Parity = USART_Parity_Even;
+  /*USART1  小无线*/
+  usart_init.USART_BaudRate = 9600;
+  usart_init.USART_WordLength = USART_WordLength_8b;
+  usart_init.USART_Parity = USART_Parity_No;
   usart_init.USART_StopBits = USART_StopBits_1;
   usart_init.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
   usart_init.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
@@ -180,7 +180,7 @@ void BSP_USART_Init(void){
   USART_ITConfig(USART1, USART_IT_TC, DISABLE);
   USART_ITConfig(USART1, USART_IT_TXE, DISABLE);
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-  */
+  
   /*USART2  mbus 485  Slave*/
   usart_init.USART_BaudRate = 2400;
   usart_init.USART_WordLength = USART_WordLength_9b;

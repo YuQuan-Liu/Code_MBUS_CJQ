@@ -339,7 +339,6 @@ void readaddr(uint8_t *frame){
 }
 
 void writedata(uint8_t *frame){
-  uint8_t i = 0;
   OS_ERR err;
   if(frame[11] == DATAFLAG_WV_L && frame[12] == DATAFLAG_WV_H){
     if(frame[14] == OPEN_VALVE){
@@ -389,6 +388,7 @@ uint8_t power_cmd(FunctionalState NewState){
     GPIO_ResetBits(GPIOA,GPIO_Pin_0);
     GPIO_ResetBits(GPIOB,GPIO_Pin_1);
   }
+  return 1;
 }
 
 uint8_t relay_1(FunctionalState NewState){
@@ -497,6 +497,7 @@ void Task_Send_Server(void *p_arg){
   while(DEF_TRUE){
     mem_ptr = OSQPend(&Q_Send_Server,0,OS_OPT_PEND_BLOCKING,&msg_size,&ts,&err);
     Send_Server_485(mem_ptr,msg_size);
+    Send_Server_RF(mem_ptr,msg_size);
     OSMemPut(&MEM_Buf,mem_ptr,&err);
   }
 }
