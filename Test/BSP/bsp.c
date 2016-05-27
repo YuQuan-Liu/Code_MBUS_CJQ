@@ -218,12 +218,12 @@ void BSP_NVIC_Init(void){
   /* Configure the NVIC Preemption Priority Bits */  
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
   
-  /* Enable the USART1 Interrupt 
+  /* Enable the USART1 Interrupt */
   nvic_init.NVIC_IRQChannel = USART1_IRQn;
   nvic_init.NVIC_IRQChannelSubPriority = 0;
   nvic_init.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&nvic_init);
-  */
+  
   /* Enable the USART3 Interrupt */
   nvic_init.NVIC_IRQChannel = USART3_IRQn;
   nvic_init.NVIC_IRQChannelSubPriority = 1;
