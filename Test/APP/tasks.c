@@ -562,15 +562,15 @@ void Task_OverLoad(void *p_arg){
     OSTimeDly(200,
                   OS_OPT_TIME_DLY,
                   &err);
-    if(!GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_12)){
+    if(GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_12)){
       //enable the beep
       GPIO_SetBits(GPIOA,GPIO_Pin_1);
       //disable the mbus power
-      power_cmd(DISABLE);
+      cjq_close();
       //Light the LED3
       
       //·äÃùÆ÷Ïì20s
-      while(cnt < 100){
+      while(cnt < 50){
         GPIO_ResetBits(GPIOA,GPIO_Pin_7);
         OSTimeDly(100,
                   OS_OPT_TIME_DLY,

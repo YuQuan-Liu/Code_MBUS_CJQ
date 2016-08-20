@@ -100,7 +100,7 @@ void USART2_Handler(void){
   uint8_t *mem_ptr;
   
   //receive the byte
-  if(USART_GetFlagStatus(USART2,USART_FLAG_RXNE)){
+  if(USART_GetFlagStatus(USART2,USART_FLAG_RXNE) && USART_GetITStatus(USART2,USART_IT_RXNE)){
     rx_byte = USART_ReceiveData(USART2);
     mem_ptr = OSMemGet(&MEM_ISR,&err);
     if(err == OS_ERR_NONE){
@@ -143,7 +143,7 @@ ErrorStatus Send_Slave(uint8_t * data,uint16_t count){
   
   GPIO_SetBits(GPIOA,GPIO_Pin_4);  //底层表为485时  打开485的发送
   USART_ITConfig(USART2,USART_IT_TC,ENABLE);
-  
+  USART_ITConfig(USART2,USART_IT_RXNE,DISABLE);
   for(i = 0;i < 4;i++){
     err = OS_ERR_NONE;
     OSSemPend(&SEM_Send_Slave,
@@ -170,7 +170,9 @@ ErrorStatus Send_Slave(uint8_t * data,uint16_t count){
   
   USART_ITConfig(USART2,USART_IT_TC,DISABLE);
   while(USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
-  
+  USART_GetFlagStatus(USART2,USART_FLAG_RXNE);
+  USART_ReceiveData(USART2);
+  USART_ITConfig(USART2,USART_IT_RXNE,ENABLE);
   GPIO_ResetBits(GPIOA,GPIO_Pin_4);  //关闭485的发送  恢复到接收
   
   return SUCCESS;
