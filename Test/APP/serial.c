@@ -29,7 +29,8 @@ void USART1_Handler(void){
               &err);
       
       if(err != OS_ERR_NONE){
-        asm("NOP");
+        //没有放进队列  放回MEMPool
+        OSMemPut(&MEM_ISR,mem_ptr,&err);
       }
     }else{
       asm("NOP");
@@ -69,7 +70,8 @@ void USART3_Handler(void){
               &err);
       
       if(err != OS_ERR_NONE){
-        asm("NOP");
+        //没有放进队列  放回MEMPool
+        OSMemPut(&MEM_ISR,mem_ptr,&err);
       }
     }else{
       asm("NOP");
@@ -105,7 +107,6 @@ void USART2_Handler(void){
     mem_ptr = OSMemGet(&MEM_ISR,&err);
     if(err == OS_ERR_NONE){
       *mem_ptr = rx_byte;
-      *mem_ptr = rx_byte;
       OSQPost((OS_Q *)&Q_Slave,
               (void *)mem_ptr,
               1,
@@ -113,7 +114,8 @@ void USART2_Handler(void){
               &err);
       
       if(err != OS_ERR_NONE){
-        asm("NOP");
+        //没有放进队列  放回MEMPool
+        OSMemPut(&MEM_ISR,mem_ptr,&err);
       }
     }else{
       asm("NOP");
