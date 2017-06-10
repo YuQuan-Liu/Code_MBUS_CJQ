@@ -78,7 +78,11 @@ void Task_Slave(void *p_arg){
     }else{
       *buf++ = data;
       if((buf-buf_) == 11){
-        frame_len = *(buf_+10)+13;
+        if(*(buf_+10) == 0x16){
+          frame_len = *(buf_+10)+13-2;
+        }else{
+          frame_len = *(buf_+10)+13;
+        }
       }
       if(frame_len > 0 && (buf-buf_) >= frame_len){
         //if it is the end of the frame
